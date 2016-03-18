@@ -41,9 +41,9 @@ const char value[4][4]
   {'3', '6', '9', '#'},
   {'A', 'B', 'C', 'D'}
 };
-
+bool ok = true;
 //Tasks
-Task taskMelody(200, 5, &playMelody);
+Task taskMelody(200, 1, &playMelody);
 Task taskText(50, TASK_FOREVER, &matrix);
 Task taskEverything(50, TASK_FOREVER, &Everything);
 
@@ -78,23 +78,34 @@ void Everything() {
       digitalWrite(redLed, LOW);
    }
 
-    if(incomingString == "bip on"){
-        taskMelody.enable();
+    if(incomingString.indexOf("bip on") != -1){
+      digitalWrite(blueLed, HIGH);
+      ok = !ok;
+//      if(ok){
+//        ok = false;
+        playMelody();
+//        ok = true;        
+//      }
+digitalWrite(blueLed, LOW);
     }
     
     if(incomingString == "bip off"){
         taskMelody.disable();
     }
+    incomingString = "";
 }
 
 //functions
+
 void playMelody(){
    for (int thisNote = 0; thisNote < 8; thisNote++) {
       int noteDuration = 1000 / noteDurations[thisNote];
       tone(3, melody[thisNote], noteDuration);
       int pauseBetweenNotes = noteDuration * 1.30;
-      delay(pauseBetweenNotes);
+      delay(pauseBetweenNotes);      
 }
+
+
 }
 
 void matrix (){ 
@@ -132,10 +143,10 @@ void setup () {
   pinMode (PinIn1, INPUT);
   digitalWrite(PinIn1, HIGH);  
   
-  Serial.begin(115200);  
+  Serial.begin(9600);  
   runner.init();
    
-  runner.addTask(taskMelody);
+ // runner.addTask(taskMelody);
   runner.addTask(taskText);
   runner.addTask(taskEverything);
   
